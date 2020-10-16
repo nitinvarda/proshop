@@ -51,9 +51,10 @@ main{
 
 .carousel img {
   height: 350px;
-  padding: 30px;
+  padding: 50px;
   margin: 40px;
   border-radius: 50%;
+  /* width:100% */
 }
 .carousel a {
   margin: 0 auto;
@@ -71,15 +72,7 @@ main{
 
 }
 
-/* @media only screen and (max-width: 992px){
-  .carousel img {
-    height: 300px;
-    margin-left: 10px;
-    margin-top: 60px;
-  }
 
-
-} */
 
 @media only screen and (max-width: 600px){
   
@@ -92,7 +85,7 @@ main{
 
   .carousel img {
     height: 300px;
-    margin-left: 10px;
+    margin-left: 8px;
     margin-top: 50px;
   }
 
