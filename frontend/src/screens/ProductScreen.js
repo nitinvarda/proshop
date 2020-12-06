@@ -5,8 +5,8 @@ import { Row, Col, Image, ListGroup, Card, Button, Form } from 'react-bootstrap'
 import Meta from '../components/Meta';
 import Rating from '../components/Rating';
 import { useDispatch, useSelector } from 'react-redux';
-import { listProductDetails, createProductReview } from '../actions/productActions';
-import { PRODUCT_CREATE_REVIEW_RESET } from '../constants/productConstants';
+import { listProductDetails, createProductReview, deleteProductReview } from '../actions/productActions';
+import { PRODUCT_CREATE_REVIEW_RESET, PRODUCT_DELETE_REVIEW_RESET } from '../constants/productConstants';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
 
@@ -30,6 +30,9 @@ const ProductScreen = ({ history, match }) => {
     const productReviewCreate = useSelector(state => state.productReviewCreate)
     const { error: errorProductReview, success: successProductReview } = productReviewCreate
 
+    const productReviewDelete = useSelector(state => state.productReviewDelete)
+    const { error: reviewDeleteError, success: reviewDeleteSuccess } = productReviewDelete
+
     const userLogin = useSelector(state => state.userLogin)
     const { userInfo } = userLogin
 
@@ -40,9 +43,13 @@ const ProductScreen = ({ history, match }) => {
             setComment('')
             dispatch({ type: PRODUCT_CREATE_REVIEW_RESET })
         }
+        if (reviewDeleteSuccess) {
+            alert('Review Deleted !')
+            dispatch({ type: PRODUCT_DELETE_REVIEW_RESET })
+        }
         dispatch(listProductDetails(match.params.id))
-    }, [dispatch, match, successProductReview])
-    // const product = products.find((p) => p._id === match.params.id)
+    }, [dispatch, match, successProductReview, reviewDeleteSuccess])
+
 
 
     const addToCartHandler = () => {
@@ -58,6 +65,11 @@ const ProductScreen = ({ history, match }) => {
         }))
 
     }
+    const deleteComment = (e) => {
+        e.preventDefault()
+        dispatch(deleteProductReview(match.params.id))
+
+    }
 
     return (
         <div>
@@ -69,7 +81,7 @@ const ProductScreen = ({ history, match }) => {
                     <Meta title={product.name} />
                     <Row>
                         <Col md={6}>
-                            <Image src={product.image} alt={product.name} fluid />
+                            <Image src={`/api/image/${product.image}`} alt={product.name} fluid />
                         </Col>
                         <Col md={3}>
                             <ListGroup variant="flush">
@@ -105,7 +117,7 @@ const ProductScreen = ({ history, match }) => {
                                         <Row >
                                             <Col>
                                                 Status:
-                                    </Col>
+                                            </Col>
                                             <Col>
                                                 {product.countInStock > 0 ? 'In Stock' : 'Out Of Stock'}
                                             </Col>
@@ -145,12 +157,41 @@ const ProductScreen = ({ history, match }) => {
                             {product.reviews.length === 0 && <Message>No reviews</Message>}
                             <ListGroup variant='flush'>
                                 {product.reviews.map(review => (
-                                    <ListGroup.Item key={review._id}>
-                                        <strong>{review.name}</strong>
-                                        <Rating value={review.rating} />
-                                        <p>{review.createdAt.substring(0, 10)}</p>
-                                        <p>{review.comment}</p>
-                                    </ListGroup.Item>
+                                    userInfo ? (
+                                        review.user.toString() === userInfo._id.toString() ?
+                                            (
+                                                <ListGroup.Item key={review._id}>
+                                                    <div className="d-flex flex-row justify-content-between">
+
+
+                                                        <strong>{review.name}</strong>
+
+
+                                                        <Button onClick={deleteComment} size="sm"><i className="fas fa-trash fa-lg"  ></i></Button>                                                </div>
+                                                    <Rating value={review.rating} />
+                                                    <p>{review.createdAt.substring(0, 10)}</p>
+                                                    <p>{review.comment}</p>
+                                                </ListGroup.Item>
+                                            ) :
+                                            (
+                                                <ListGroup.Item key={review._id}>
+                                                    <strong>{review.name}</strong>
+                                                    <Rating value={review.rating} />
+                                                    <p>{review.createdAt.substring(0, 10)}</p>
+                                                    <p>{review.comment}</p>
+
+                                                </ListGroup.Item>
+                                            )
+                                    ) :
+                                        (
+                                            <ListGroup.Item key={review._id}>
+                                                <strong>{review.name}</strong>
+                                                <Rating value={review.rating} />
+                                                <p>{review.createdAt.substring(0, 10)}</p>
+                                                <p>{review.comment}</p>
+
+                                            </ListGroup.Item>
+                                        )
                                 ))}
                                 <ListGroup.Item><h2>Write a Customer Review</h2>
                                     {errorProductReview && <Message variant='danger'>{errorProductReview}</Message>}
