@@ -11,10 +11,8 @@ import Product from '../models/productModel.js'
 
 const router = express.Router()
 
+
 var gfs = new mongoose.mongo.GridFSBucket(db, { bucketName: 'proshop' });
-
-
-
 
 
 
